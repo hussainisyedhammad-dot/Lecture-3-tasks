@@ -1,0 +1,735 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.app{display:flex;height:100vh;min-height:620px;background:var(--color-background-tertiary)}
+.sidebar{width:220px;flex-shrink:0;background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;padding:1rem 0}
+.logo{padding:0.5rem 1.25rem 1.25rem;font-size:15px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:#1D9E75;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.nav-section{font-size:10px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.08em;padding:1rem 1.25rem 0.35rem;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:0.55rem 1.25rem;font-size:13.5px;color:var(--color-text-secondary);cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-secondary);color:#0F6E56;font-weight:500}
+.nav-item i{font-size:16px}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:1rem 1.5rem;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:500}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.4rem 0.85rem;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-primary{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.btn-primary:hover{background:#0F6E56;border-color:#0F6E56}
+.btn-export{background:#185FA5;border-color:#185FA5;color:#fff}
+.btn-export:hover{background:#0C447C;border-color:#0C447C}
+.content{padding:1.5rem;flex:1;display:flex;flex-direction:column;gap:1.25rem}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.metric-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:6px}
+.metric-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-delta{font-size:12px;margin-top:4px}
+.delta-up{color:#0F6E56}
+.delta-down{color:#A32D2D}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:500}
+.badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.badge-success{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-warning{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-info{background:var(--color-background-info);color:var(--color-text-info)}
+.tx-list{display:flex;flex-direction:column;gap:2px}
+.tx-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tx-item:last-child{border-bottom:none}
+.tx-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-cat{font-size:11px;color:var(--color-text-secondary)}
+.tx-amount{font-size:13px;font-weight:500}
+.tx-date{font-size:11px;color:var(--color-text-tertiary);flex-shrink:0}
+.budget-list{display:flex;flex-direction:column;gap:12px}
+.budget-row{display:flex;justify-content:space-between;margin-bottom:5px}
+.budget-name{font-size:13px;font-weight:500}
+.budget-amounts{font-size:12px;color:var(--color-text-secondary)}
+.progress-bar{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.ai-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.ai-header{padding:1rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:8px}
+.ai-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:#E1F5EE;color:#0F6E56;font-weight:500}
+.ai-messages{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px;max-height:220px;overflow-y:auto}
+.msg{padding:10px 12px;border-radius:var(--border-radius-md);font-size:13px;line-height:1.55;max-width:90%}
+.msg-ai{background:var(--color-background-secondary);align-self:flex-start}
+.msg-user{background:#1D9E75;color:#fff;align-self:flex-end}
+.ai-input-row{padding:0.75rem 1.25rem;border-top:0.5px solid var(--color-border-tertiary);display:flex;gap:8px}
+.ai-input{flex:1;padding:0.45rem 0.75rem;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary)}
+.ai-input:focus{outline:none;border-color:#1D9E75}
+.typing{display:flex;align-items:center;gap:4px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);align-self:flex-start}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--color-text-secondary);animation:pulse 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--border-radius-md);font-size:13px}
+.alert-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.alert-info{background:var(--color-background-info);color:var(--color-text-info)}
+.alert-success{background:var(--color-background-success);color:var(--color-text-success)}
+.inv-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.inv-row:last-child{border-bottom:none}
+.hidden{display:none}
+.view{display:none;flex-direction:column;gap:1.25rem}
+.view.active{display:flex}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:syncpulse 2s infinite}
+@keyframes syncpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:12px;color:var(--color-text-secondary)}
+.form-input{padding:0.45rem 0.75rem;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary)}
+.form-input:focus{outline:none;border-color:#1D9E75}
+.chart-wrap{position:relative;height:200px;margin-top:8px}
+.nw-chart-wrap{position:relative;height:260px;margin-top:8px}
+.range-btn{padding:4px 10px;font-size:11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.range-btn.sel{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.export-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+</style>
+
+<h2 class="sr-only">Fintab — Personal Finance Dashboard in Pakistani Rupees (PKR)</h2>
+
+<div class="app">
+  <aside class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="logo">
+      <div class="logo-icon" aria-hidden="true"><i class="ti ti-leaf"></i></div>
+      Fintab · PKR
+    </div>
+    <span class="nav-section">Overview</span>
+    <button class="nav-item active" onclick="showView('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</button>
+    <button class="nav-item" onclick="showView('networth',this)"><i class="ti ti-chart-line" aria-hidden="true"></i> Net worth</button>
+    <button class="nav-item" onclick="showView('expenses',this)"><i class="ti ti-receipt" aria-hidden="true"></i> Expenses</button>
+    <button class="nav-item" onclick="showView('budget',this)"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Budgets</button>
+    <span class="nav-section">Grow</span>
+    <button class="nav-item" onclick="showView('investments',this)"><i class="ti ti-trending-up" aria-hidden="true"></i> Investments</button>
+    <button class="nav-item" onclick="showView('insights',this)"><i class="ti ti-sparkles" aria-hidden="true"></i> AI insights</button>
+    <span class="nav-section">Data</span>
+    <button class="nav-item" onclick="showView('export',this)"><i class="ti ti-download" aria-hidden="true"></i> Export CSV</button>
+    <div style="margin-top:auto;padding:1rem 1.25rem">
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">Exchange rate</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);font-weight:500">1 USD = 278.5 PKR</div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--color-text-secondary);margin-top:8px">
+        <div class="sync-dot"></div> Synced just now
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" aria-label="Main content">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn" onclick="syncData()"><i class="ti ti-refresh" aria-hidden="true"></i> Sync</button>
+        <button class="btn btn-export" onclick="showView('export',document.querySelector('[onclick*=export]'))"><i class="ti ti-download" aria-hidden="true"></i> Export</button>
+        <button class="btn btn-primary" onclick="showAddExpense()"><i class="ti ti-plus" aria-hidden="true"></i> Add expense</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Dashboard -->
+      <div id="view-dashboard" class="view active">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Net worth</div>
+            <div class="metric-value">Rs 1.35 cr</div>
+            <div class="metric-delta delta-up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +Rs 5.12 lac this month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Monthly spend</div>
+            <div class="metric-value">Rs 7.84 lac</div>
+            <div class="metric-delta delta-down"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +Rs 66,840 vs last month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Savings rate</div>
+            <div class="metric-value">22%</div>
+            <div class="metric-delta delta-up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +3pts vs target</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Investments</div>
+            <div class="metric-value">Rs 87.0 lac</div>
+            <div class="metric-delta delta-up"><i class="ti ti-arrow-up-right" aria-hidden="true"></i> +4.2% MTD</div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Spend this month</span><span class="badge badge-warning">Jun 2026</span></div>
+            <div class="chart-wrap"><canvas id="spendChart" role="img" aria-label="Bar chart of daily spending in June 2026 in PKR">June 2026 daily spending in PKR.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Category breakdown</span></div>
+            <div class="chart-wrap"><canvas id="catChart" role="img" aria-label="Donut chart of spending by category in PKR">Housing 35%, Food 28%, Transport 12%, Entertainment 10%, Health 8%, Other 7%.</canvas></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recent transactions</span><button class="btn" style="font-size:12px;padding:3px 8px" onclick="showView('expenses',document.querySelector('[onclick*=expenses]'))">View all</button></div>
+            <div class="tx-list" id="tx-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Budget status</span><button class="btn" style="font-size:12px;padding:3px 8px" onclick="showView('budget',document.querySelector('[onclick*=budget]'))">Manage</button></div>
+            <div class="budget-list" id="budget-summary"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Active alerts</span></div>
+          <div class="alert-list" id="alert-list"></div>
+        </div>
+      </div>
+
+      <!-- Net Worth Timeline -->
+      <div id="view-networth" class="view">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Current net worth</div>
+            <div class="metric-value">Rs 1.35 cr</div>
+            <div class="metric-delta delta-up">+Rs 39.5 lac YTD</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">12-month growth</div>
+            <div class="metric-value">+41.5%</div>
+            <div class="metric-delta delta-up">vs 8.1% market avg</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Best month</div>
+            <div class="metric-value">Mar 2026</div>
+            <div class="metric-delta delta-up">+Rs 9.02 lac gained</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Projected Dec 2026</div>
+            <div class="metric-value">Rs 1.64 cr</div>
+            <div class="metric-delta delta-up">At current rate</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Net worth over time</span>
+            <div style="display:flex;gap:5px">
+              <button class="range-btn sel" onclick="setNwRange(6,this)">6M</button>
+              <button class="range-btn" onclick="setNwRange(12,this)">12M</button>
+              <button class="range-btn" onclick="setNwRange(24,this)">24M</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:8px;font-size:12px;color:var(--color-text-secondary)">
+            <span style="display:flex;align-items:center;gap:4px"><span class="legend-dot" style="background:#1D9E75"></span>Net worth</span>
+            <span style="display:flex;align-items:center;gap:4px"><span class="legend-dot" style="background:#185FA5;opacity:.5"></span>Investments</span>
+            <span style="display:flex;align-items:center;gap:4px"><span class="legend-dot" style="background:#BA7517;opacity:.5"></span>Cash & savings</span>
+          </div>
+          <div class="nw-chart-wrap"><canvas id="nwChart" role="img" aria-label="Line chart of net worth growth in PKR over time">Net worth growth from Rs 95.1 lac in Jul 2025 to Rs 1.35 cr in Jun 2026.</canvas></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Monthly change</span></div>
+            <div style="position:relative;height:160px;margin-top:8px"><canvas id="nwBarChart" role="img" aria-label="Bar chart of monthly net worth changes in PKR">Monthly net worth changes in PKR.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Wealth breakdown — Jun 2026</span></div>
+            <div style="position:relative;height:160px;margin-top:8px"><canvas id="wealthPie" role="img" aria-label="Donut chart of wealth breakdown: Investments 65%, Cash 17%, Real assets 18%">Investments 65%, Cash 17%, Real assets 18%.</canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Milestone tracker</span></div>
+          <div id="milestone-list" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+      </div>
+
+      <!-- Expenses -->
+      <div id="view-expenses" class="view">
+        <div id="add-expense-panel" class="card hidden">
+          <div class="card-header"><span class="card-title">Add expense</span><button class="btn" onclick="hideAddExpense()">Cancel</button></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label" for="exp-name">Description</label><input class="form-input" id="exp-name" type="text" placeholder="e.g. Lunch at dhaba"></div>
+              <div class="form-group"><label class="form-label" for="exp-amount">Amount (Rs)</label><input class="form-input" id="exp-amount" type="number" placeholder="0"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label" for="exp-cat">Category</label><select class="form-input" id="exp-cat"><option>Food & dining</option><option>Housing</option><option>Transport</option><option>Entertainment</option><option>Health</option><option>Shopping</option><option>Other</option></select></div>
+              <div class="form-group"><label class="form-label" for="exp-date">Date</label><input class="form-input" id="exp-date" type="date"></div>
+            </div>
+            <button class="btn btn-primary" style="align-self:flex-start" onclick="addExpense()"><i class="ti ti-plus" aria-hidden="true"></i> Add transaction</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">All transactions</span>
+            <select class="form-input" id="filter-cat" style="font-size:12px;padding:3px 8px;height:auto" onchange="renderFullTx()">
+              <option value="">All categories</option>
+              <option>Food & dining</option><option>Housing</option><option>Transport</option><option>Entertainment</option><option>Health</option><option>Shopping</option><option>Other</option>
+            </select>
+          </div>
+          <div id="full-tx-list" class="tx-list"></div>
+        </div>
+      </div>
+
+      <!-- Budget -->
+      <div id="view-budget" class="view">
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-label">Total budgeted</div><div class="metric-value">Rs 8.91 lac</div></div>
+          <div class="metric-card"><div class="metric-label">Total spent</div><div class="metric-value">Rs 7.84 lac</div></div>
+          <div class="metric-card"><div class="metric-label">Remaining</div><div class="metric-value" style="color:#0F6E56">Rs 1.07 lac</div></div>
+          <div class="metric-card"><div class="metric-label">Days left</div><div class="metric-value">13</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Budget categories</span></div>
+          <div id="full-budget-list" class="budget-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Alert thresholds</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">Get notified when you reach a % of your budget limit.</div>
+          <div style="display:flex;flex-direction:column;gap:10px" id="alert-config"></div>
+        </div>
+      </div>
+
+      <!-- Investments -->
+      <div id="view-investments" class="view">
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-label">Portfolio value</div><div class="metric-value">Rs 87.0 lac</div><div class="metric-delta delta-up">+4.2% MTD</div></div>
+          <div class="metric-card"><div class="metric-label">Today's gain</div><div class="metric-value" style="color:#0F6E56">+Rs 51,244</div><div class="metric-delta delta-up">+0.59%</div></div>
+          <div class="metric-card"><div class="metric-label">Annual return</div><div class="metric-value">+12.3%</div><div class="metric-delta">vs 8.1% benchmark</div></div>
+          <div class="metric-card"><div class="metric-label">Cash position</div><div class="metric-value">Rs 5.85 lac</div><div class="metric-delta">6.7% of portfolio</div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Holdings</span></div>
+            <div id="holdings-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Allocation</span></div>
+            <div class="chart-wrap"><canvas id="allocChart" role="img" aria-label="Portfolio allocation: ETFs 55%, Stocks 28%, Bonds 11%, Cash 6%">ETFs 55%, Stocks 28%, Bonds 11%, Cash 6%.</canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div id="view-insights" class="view">
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-label">Insight score</div><div class="metric-value">82/100</div><div class="metric-delta delta-up">Good financial health</div></div>
+          <div class="metric-card"><div class="metric-label">Savings potential</div><div class="metric-value">+Rs 94,690/mo</div><div class="metric-delta">Based on spending</div></div>
+          <div class="metric-card"><div class="metric-label">Next review</div><div class="metric-value">Jul 1</div><div class="metric-delta">Monthly check-in</div></div>
+          <div class="metric-card"><div class="metric-label">Goal progress</div><div class="metric-value">68%</div><div class="metric-delta delta-up">Emergency fund</div></div>
+        </div>
+        <div class="ai-panel">
+          <div class="ai-header">
+            <i class="ti ti-robot" aria-hidden="true" style="font-size:16px;color:#0F6E56"></i>
+            <span style="font-size:14px;font-weight:500">Financial advisor</span>
+            <span class="ai-badge">AI-powered</span>
+          </div>
+          <div class="ai-messages" id="ai-messages">
+            <div class="msg msg-ai">Assalam-o-Alaikum! I'm your AI financial advisor. I can analyze your spending in PKR, explain your net worth trend, and help you reach your goals. What would you like to explore?</div>
+          </div>
+          <div class="ai-input-row">
+            <input class="ai-input" id="ai-input" type="text" placeholder="Ask about your finances in PKR..." onkeydown="if(event.key==='Enter')sendAI()">
+            <button class="btn btn-primary" onclick="sendAI()"><i class="ti ti-send" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="quickAsk('How can I reduce my food spending in Pakistan?')">Reduce food spend ↗</button>
+          <button class="btn" onclick="quickAsk('What investments should I consider in Pakistan — PSX, mutual funds, or savings?')">Pakistan investment ideas ↗</button>
+          <button class="btn" onclick="quickAsk('Am I on track to save Rs 30 lac by December?')">Savings goal check ↗</button>
+          <button class="btn" onclick="quickAsk('Summarize my financial health this month in PKR')">Monthly summary ↗</button>
+        </div>
+      </div>
+
+      <!-- Export CSV -->
+      <div id="view-export" class="view">
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-label">Transactions</div><div class="metric-value" id="exp-tx-count">10</div><div class="metric-delta">Ready to export</div></div>
+          <div class="metric-card"><div class="metric-label">Net worth records</div><div class="metric-value">24</div><div class="metric-delta">24 months of data</div></div>
+          <div class="metric-card"><div class="metric-label">Budget data</div><div class="metric-value">6</div><div class="metric-delta">Categories tracked</div></div>
+          <div class="metric-card"><div class="metric-label">Holdings</div><div class="metric-value">6</div><div class="metric-delta">Investment positions</div></div>
+        </div>
+        <div class="export-card">
+          <div class="card-header"><span class="card-title">Export transactions</span><span class="badge badge-success">CSV · PKR</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">All transactions with date, category, amount in PKR, and description.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <select class="form-input" id="export-cat-filter" style="font-size:13px;height:auto">
+              <option value="">All categories</option>
+              <option>Food & dining</option><option>Housing</option><option>Transport</option><option>Entertainment</option><option>Health</option><option>Shopping</option><option>Other</option>
+            </select>
+          </div>
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary);margin-bottom:14px;overflow-x:auto;white-space:nowrap">
+            date,description,category,amount_pkr,type<br>
+            2026-06-17,Grocery run,Food & dining,17880,expense<br>
+            2026-06-01,Monthly rent,Housing,264575,expense<br>
+            <span style="color:var(--color-text-tertiary)">… +8 more rows</span>
+          </div>
+          <button class="btn btn-export" onclick="exportCSV('transactions')"><i class="ti ti-download" aria-hidden="true"></i> Download transactions.csv</button>
+        </div>
+        <div class="export-card">
+          <div class="card-header"><span class="card-title">Export net worth timeline</span><span class="badge badge-info">CSV · PKR</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">24-month net worth history with investments, cash, and monthly change — all in PKR.</div>
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary);margin-bottom:14px;overflow-x:auto;white-space:nowrap">
+            month,net_worth_pkr,investments_pkr,cash_pkr,monthly_change_pkr<br>
+            Jul-24,9513990,5349200,2255850,+345540<br>
+            Aug-24,9983370,5597850,2367250,+469380<br>
+            <span style="color:var(--color-text-tertiary)">… +22 more rows</span>
+          </div>
+          <button class="btn btn-export" onclick="exportCSV('networth')"><i class="ti ti-download" aria-hidden="true"></i> Download networth_timeline.csv</button>
+        </div>
+        <div class="export-card">
+          <div class="card-header"><span class="card-title">Export budget report</span><span class="badge badge-warning">CSV · PKR</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">Monthly budget vs. actual by category in PKR.</div>
+          <button class="btn btn-export" onclick="exportCSV('budget')"><i class="ti ti-download" aria-hidden="true"></i> Download budget_report.csv</button>
+        </div>
+        <div class="export-card">
+          <div class="card-header"><span class="card-title">Export holdings</span><span class="badge badge-success">CSV · PKR</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">Portfolio positions with PKR values and performance.</div>
+          <button class="btn btn-export" onclick="exportCSV('investments')"><i class="ti ti-download" aria-hidden="true"></i> Download holdings.csv</button>
+        </div>
+        <div class="export-card">
+          <div class="card-header"><span class="card-title">Export everything</span></div>
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">All four datasets as separate CSV files.</div>
+          <button class="btn btn-primary" onclick="exportAll()"><i class="ti ti-file-download" aria-hidden="true"></i> Download all CSV files</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RATE=278.5;
+function pkr(usd){return Math.round(usd*RATE);}
+function fmt(n){
+  if(n>=10000000)return 'Rs '+(n/10000000).toFixed(2)+' cr';
+  if(n>=100000)return 'Rs '+(n/100000).toFixed(1)+' lac';
+  if(n>=1000)return 'Rs '+Math.round(n/1000)+'k';
+  return 'Rs '+Math.round(n).toLocaleString('en-PK');
+}
+function fmtFull(n){return 'Rs '+Math.round(n).toLocaleString('en-PK');}
+
+const CATEGORIES={
+  'Food & dining':{icon:'ti-fork',color:'#1D9E75',bg:'#E1F5EE'},
+  'Housing':{icon:'ti-home',color:'#185FA5',bg:'#E6F1FB'},
+  'Transport':{icon:'ti-car',color:'#BA7517',bg:'#FAEEDA'},
+  'Entertainment':{icon:'ti-device-tv',color:'#533B89',bg:'#EEEDFE'},
+  'Health':{icon:'ti-heart',color:'#A32D2D',bg:'#FCEBEB'},
+  'Shopping':{icon:'ti-shopping-bag',color:'#993556',bg:'#FBEAF0'},
+  'Other':{icon:'ti-dots',color:'#5F5E5A',bg:'#F1EFE8'}
+};
+
+let transactions=[
+  {id:1,name:'Grocery run',cat:'Food & dining',amount:pkr(64.20),date:'2026-06-17'},
+  {id:2,name:'Monthly rent',cat:'Housing',amount:pkr(950),date:'2026-06-01'},
+  {id:3,name:'Rickshaw / Careem',cat:'Transport',amount:pkr(18.50),date:'2026-06-16'},
+  {id:4,name:'Netflix',cat:'Entertainment',amount:pkr(15.99),date:'2026-06-10'},
+  {id:5,name:'Pharmacy',cat:'Health',amount:pkr(32.40),date:'2026-06-15'},
+  {id:6,name:'Café lunch',cat:'Food & dining',amount:pkr(22.00),date:'2026-06-17'},
+  {id:7,name:'Gym membership',cat:'Health',amount:pkr(49.00),date:'2026-06-05'},
+  {id:8,name:'Daraz order',cat:'Shopping',amount:pkr(87.30),date:'2026-06-12'},
+  {id:9,name:'Bus pass',cat:'Transport',amount:pkr(45.00),date:'2026-06-01'},
+  {id:10,name:'Dinner out',cat:'Food & dining',amount:pkr(78.50),date:'2026-06-14'}
+];
+
+let budgets=[
+  {cat:'Food & dining',limit:pkr(600),spent:0},
+  {cat:'Housing',limit:pkr(1000),spent:0},
+  {cat:'Transport',limit:pkr(200),spent:0},
+  {cat:'Entertainment',limit:pkr(150),spent:0},
+  {cat:'Health',limit:pkr(200),spent:0},
+  {cat:'Shopping',limit:pkr(300),spent:0}
+];
+
+let alertThresholds={'Food & dining':80,'Housing':90,'Transport':75,'Entertainment':80,'Health':75,'Shopping':80};
+
+const holdings=[
+  {ticker:'VTI',name:'Vanguard Total Market',alloc:'35%',valuePkr:pkr(10934),delta:'+1.2%',up:true},
+  {ticker:'AAPL',name:'Apple Inc.',alloc:'12%',valuePkr:pkr(3748),delta:'+2.8%',up:true},
+  {ticker:'BND',name:'Vanguard Bond ETF',alloc:'11%',valuePkr:pkr(3436),delta:'-0.1%',up:false},
+  {ticker:'QQQ',name:'Invesco Nasdaq-100',alloc:'18%',valuePkr:pkr(5623),delta:'+3.5%',up:true},
+  {ticker:'MSFT',name:'Microsoft Corp.',alloc:'10%',valuePkr:pkr(3124),delta:'+0.9%',up:true},
+  {ticker:'CASH',name:'Money market',alloc:'7%',valuePkr:pkr(2187),delta:'0.0%',up:true}
+];
+
+const NW_USD=[34140,35820,36400,37100,38200,39500,38800,40200,43440,41900,42800,43600,44100,44800,45200,45800,46300,47000,46200,47100,48320,47800,48000,48320];
+const INV_USD=[19200,20100,20600,21200,22400,23900,23100,24500,27200,25800,26400,27000,27500,28100,28400,28900,29500,30200,29300,30100,31240,30800,31000,31240];
+const CASH_USD=[8100,8500,8600,8700,8900,9200,9000,9400,9800,9400,9700,9900,9900,10000,10000,10200,10100,10200,10200,10400,10480,10400,10400,10480];
+const NW_LABELS=['Jul\'24','Aug','Sep','Oct','Nov','Dec','Jan\'25','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan\'26','Feb','Mar','Apr','May','Jun\'26'];
+const NW_PKR=NW_USD.map(pkr);
+const INV_PKR=INV_USD.map(pkr);
+const CASH_PKR=CASH_USD.map(pkr);
+
+const milestones=[
+  {label:'Rs 70 lac net worth',date:'Jan 2025',done:true},
+  {label:'Rs 1.0 crore net worth',date:'Mar 2025',done:true},
+  {label:'Rs 1.35 crore net worth',date:'Jun 2026',done:true},
+  {label:'Rs 1.5 crore net worth',date:'Sep 2026 (est.)',done:false},
+  {label:'Rs 2.0 crore net worth',date:'Feb 2027 (est.)',done:false}
+];
+
+function calcBudgetSpent(){
+  budgets.forEach(b=>b.spent=0);
+  transactions.forEach(t=>{let b=budgets.find(b=>b.cat===t.cat);if(b)b.spent+=t.amount;});
+}
+calcBudgetSpent();
+
+let nwChartInst=null,nwBarInst=null,wealthPieInst=null,allocChartInst=null;
+
+function showView(name,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',networth:'Net worth',expenses:'Expenses',budget:'Budgets',investments:'Investments',insights:'AI insights',export:'Export CSV'};
+  document.getElementById('page-title').textContent=titles[name]||name;
+  if(name==='networth')setTimeout(()=>initNwCharts(6),80);
+  if(name==='expenses')renderFullTx();
+  if(name==='budget')renderBudgetFull();
+  if(name==='investments')setTimeout(()=>renderInvestments(),80);
+  if(name==='export')document.getElementById('exp-tx-count').textContent=transactions.length;
+}
+
+function setNwRange(months,btn){
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  initNwCharts(months);
+}
+
+function initNwCharts(months){
+  const isDark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const tc=isDark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)';
+  const gc=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  const sl=arr=>arr.slice(-months);
+  const labels=sl(NW_LABELS);
+  const nwD=sl(NW_PKR);
+  const invD=sl(INV_PKR);
+  const cashD=sl(CASH_PKR);
+  const changes=nwD.map((v,i)=>i===0?0:Math.round(v-nwD[i-1]));
+  const fmtK=v=>{if(Math.abs(v)>=100000)return (v>=0?'+':'-')+'Rs '+(Math.abs(v)/100000).toFixed(1)+'L';return (v>=0?'+':'')+Math.round(v/1000)+'k';};
+
+  if(nwChartInst)nwChartInst.destroy();
+  nwChartInst=new Chart(document.getElementById('nwChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Net worth',data:nwD,borderColor:'#1D9E75',borderWidth:2,pointRadius:3,pointBackgroundColor:'#1D9E75',tension:.35,fill:false},
+      {label:'Investments',data:invD,borderColor:'#185FA5',borderWidth:1.5,borderDash:[4,3],pointRadius:2,pointBackgroundColor:'#185FA5',tension:.35,fill:false},
+      {label:'Cash & savings',data:cashD,borderColor:'#BA7517',borderWidth:1.5,borderDash:[2,4],pointRadius:2,pointBackgroundColor:'#BA7517',tension:.35,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},scales:{x:{ticks:{color:tc,font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:tc,font:{size:10},callback:v=>fmt(v)},grid:{color:gc}}}}
+  });
+
+  if(nwBarInst)nwBarInst.destroy();
+  nwBarInst=new Chart(document.getElementById('nwBarChart'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Monthly change',data:changes,backgroundColor:changes.map(v=>v>=0?'#1D9E75':'#E24B4A'),borderRadius:3,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:6},grid:{display:false}},y:{ticks:{color:tc,font:{size:10},callback:fmtK},grid:{color:gc}}}}
+  });
+
+  if(wealthPieInst)wealthPieInst.destroy();
+  wealthPieInst=new Chart(document.getElementById('wealthPie'),{
+    type:'doughnut',
+    data:{labels:['Investments','Cash & savings','Real assets'],datasets:[{data:[65,17,18],backgroundColor:['#185FA5','#1D9E75','#BA7517'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}
+  });
+
+  const mlist=document.getElementById('milestone-list');
+  if(mlist)mlist.innerHTML=milestones.map(m=>`<div style="display:flex;align-items:center;gap:10px">
+    <div style="width:20px;height:20px;border-radius:50%;background:${m.done?'#1D9E75':'var(--color-background-secondary)'};border:1.5px solid ${m.done?'#1D9E75':'var(--color-border-secondary)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${m.done?'<i class="ti ti-check" style="font-size:12px;color:#fff" aria-hidden="true"></i>':''}</div>
+    <span style="font-size:13px;flex:1;color:${m.done?'var(--color-text-primary)':'var(--color-text-secondary)'}">${m.label}</span>
+    <span style="font-size:12px;color:${m.done?'#0F6E56':'var(--color-text-tertiary)'}">${m.date}</span>
+  </div>`).join('');
+}
+
+function renderTxItem(t){
+  const c=CATEGORIES[t.cat]||CATEGORIES['Other'];
+  return `<div class="tx-item">
+    <div class="tx-icon" style="background:${c.bg};color:${c.color}"><i class="ti ${c.icon}" aria-hidden="true"></i></div>
+    <div class="tx-info"><div class="tx-name">${t.name}</div><div class="tx-cat">${t.cat}</div></div>
+    <div style="text-align:right">
+      <div class="tx-amount">-${fmtFull(t.amount)}</div>
+      <div class="tx-date">${t.date.slice(5).replace('-','/')}</div>
+    </div>
+  </div>`;
+}
+
+function renderTxList(){
+  const el=document.getElementById('tx-list');
+  if(!el)return;
+  el.innerHTML=[...transactions].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(renderTxItem).join('');
+}
+
+function renderFullTx(){
+  const el=document.getElementById('full-tx-list');
+  if(!el)return;
+  const f=document.getElementById('filter-cat')?.value||'';
+  const list=f?transactions.filter(t=>t.cat===f):transactions;
+  el.innerHTML=[...list].sort((a,b)=>b.date.localeCompare(a.date)).map(renderTxItem).join('');
+}
+
+function renderBudgetSummary(){
+  const el=document.getElementById('budget-summary');
+  if(!el)return;
+  el.innerHTML=budgets.slice(0,4).map(b=>{
+    const pct=Math.min(100,Math.round(b.spent/b.limit*100));
+    const col=pct>90?'#E24B4A':pct>75?'#EF9F27':'#1D9E75';
+    return `<div><div class="budget-row"><span class="budget-name">${b.cat}</span><span class="budget-amounts">${fmt(b.spent)}/${fmt(b.limit)}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+  }).join('');
+}
+
+function renderBudgetFull(){
+  const el=document.getElementById('full-budget-list');
+  const el2=document.getElementById('alert-config');
+  if(!el)return;
+  el.innerHTML=budgets.map(b=>{
+    const pct=Math.min(100,Math.round(b.spent/b.limit*100));
+    const col=pct>90?'#E24B4A':pct>75?'#EF9F27':'#1D9E75';
+    return `<div><div class="budget-row"><span class="budget-name">${b.cat}</span><span class="budget-amounts">${fmt(b.spent)} of ${fmt(b.limit)} · ${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+  }).join('');
+  if(el2)el2.innerHTML=budgets.map(b=>{
+    const thr=alertThresholds[b.cat]||80;
+    return `<div style="display:flex;align-items:center;gap:12px"><span style="font-size:13px;flex:1">${b.cat}</span><input type="range" min="50" max="100" step="5" value="${thr}" style="flex:2" oninput="alertThresholds['${b.cat}']=+this.value;this.nextElementSibling.textContent=this.value+'%'"><span style="font-size:12px;min-width:36px;text-align:right">${thr}%</span></div>`;
+  }).join('');
+}
+
+function renderAlerts(){
+  const el=document.getElementById('alert-list');
+  if(!el)return;
+  const alerts=[];
+  budgets.forEach(b=>{
+    const pct=b.spent/b.limit*100;
+    const thr=alertThresholds[b.cat]||80;
+    if(pct>=100)alerts.push({type:'danger',icon:'ti-alert-circle',msg:`${b.cat} budget exceeded — ${fmt(b.spent-b.limit)} over limit`});
+    else if(pct>=thr)alerts.push({type:'warn',icon:'ti-alert-triangle',msg:`${b.cat} at ${Math.round(pct)}% of budget (alert at ${thr}%)`});
+  });
+  alerts.push({type:'info',icon:'ti-info-circle',msg:'Next salary credit on Jun 25 — 8 days away'});
+  alerts.push({type:'success',icon:'ti-check',msg:'Savings target met for June — shabash!'});
+  el.innerHTML=alerts.map(a=>`<div class="alert-item ${a.type==='success'?'alert-success':a.type==='info'?'alert-info':'alert-warn'}"><i class="ti ${a.icon}" aria-hidden="true"></i> ${a.msg}</div>`).join('');
+}
+
+function renderInvestments(){
+  const el=document.getElementById('holdings-list');
+  if(!el)return;
+  el.innerHTML=holdings.map(h=>`<div class="inv-row"><div><div style="font-size:13px;font-weight:500">${h.ticker}</div><div style="font-size:11px;color:var(--color-text-secondary)">${h.name}</div></div><div style="font-size:12px;color:var(--color-text-secondary)">${h.alloc}</div><div style="text-align:right"><div style="font-size:13px;font-weight:500">${fmt(h.valuePkr)}</div><div style="font-size:11px;color:${h.up?'#0F6E56':'#A32D2D'}">${h.delta}</div></div></div>`).join('');
+  if(allocChartInst)allocChartInst.destroy();
+  allocChartInst=new Chart(document.getElementById('allocChart'),{
+    type:'doughnut',
+    data:{labels:['ETFs','Stocks','Bonds','Cash'],datasets:[{data:[55,28,11,6],backgroundColor:['#1D9E75','#185FA5','#BA7517','#888780'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+}
+
+function showAddExpense(){
+  showView('expenses',document.querySelector('[onclick*=expenses]'));
+  document.getElementById('add-expense-panel').classList.remove('hidden');
+  document.getElementById('exp-date').value=new Date().toISOString().slice(0,10);
+}
+function hideAddExpense(){document.getElementById('add-expense-panel').classList.add('hidden');}
+
+function addExpense(){
+  const name=document.getElementById('exp-name').value.trim();
+  const amount=parseFloat(document.getElementById('exp-amount').value);
+  const cat=document.getElementById('exp-cat').value;
+  const date=document.getElementById('exp-date').value;
+  if(!name||!amount||!date)return;
+  transactions.unshift({id:Date.now(),name,cat,amount,date});
+  calcBudgetSpent();
+  document.getElementById('exp-name').value='';
+  document.getElementById('exp-amount').value='';
+  renderTxList();renderFullTx();renderBudgetSummary();renderAlerts();
+  hideAddExpense();
+}
+
+function syncData(){
+  const dot=document.querySelector('.sync-dot');
+  dot.style.background='#BA7517';
+  setTimeout(()=>dot.style.background='#1D9E75',1200);
+}
+
+function downloadCSV(filename,csv){
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV(type){
+  if(type==='transactions'){
+    const f=document.getElementById('export-cat-filter')?.value||'';
+    const rows=f?transactions.filter(t=>t.cat===f):transactions;
+    const hdr='date,description,category,amount_pkr,type\n';
+    const body=rows.map(t=>`${t.date},"${t.name}","${t.cat}",${Math.round(t.amount)},expense`).join('\n');
+    downloadCSV('transactions_pkr.csv',hdr+body);
+  } else if(type==='networth'){
+    const hdr='month,net_worth_pkr,investments_pkr,cash_pkr,monthly_change_pkr\n';
+    const body=NW_LABELS.map((l,i)=>{
+      const ch=i===0?0:NW_PKR[i]-NW_PKR[i-1];
+      return `${l},${NW_PKR[i]},${INV_PKR[i]},${CASH_PKR[i]},${ch>=0?'+':''}${Math.round(ch)}`;
+    }).join('\n');
+    downloadCSV('networth_timeline_pkr.csv',hdr+body);
+  } else if(type==='budget'){
+    const hdr='category,budget_limit_pkr,amount_spent_pkr,remaining_pkr,pct_used\n';
+    const body=budgets.map(b=>{
+      const pct=Math.round(b.spent/b.limit*1000)/10;
+      return `"${b.cat}",${Math.round(b.limit)},${Math.round(b.spent)},${Math.round(b.limit-b.spent)},${pct}%`;
+    }).join('\n');
+    downloadCSV('budget_report_pkr.csv',hdr+body);
+  } else if(type==='investments'){
+    const hdr='ticker,name,allocation,value_pkr,daily_change\n';
+    const body=holdings.map(h=>`${h.ticker},"${h.name}",${h.alloc},${Math.round(h.valuePkr)},${h.delta}`).join('\n');
+    downloadCSV('holdings_pkr.csv',hdr+body);
+  }
+}
+
+function exportAll(){
+  ['transactions','networth','budget','investments'].forEach((t,i)=>setTimeout(()=>exportCSV(t),i*300));
+}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const msgs=document.getElementById('ai-messages');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';
+  msgs.innerHTML+=`<div class="msg msg-user">${text}</div>`;
+  const typing=document.createElement('div');
+  typing.className='typing';
+  typing.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  msgs.appendChild(typing);
+  msgs.scrollTop=msgs.scrollHeight;
+  const totalSpend=transactions.reduce((s,t)=>s+t.amount,0);
+  const bycat={};budgets.forEach(b=>bycat[b.cat]=Math.round(b.spent));
+  const context=`User is based in Pakistan. All amounts in PKR (1 USD = 278.5 PKR). June 2026 total spend: Rs ${Math.round(totalSpend).toLocaleString()}, by category: ${JSON.stringify(bycat)}, investments: Rs 87 lac (+4.2% MTD), net worth: Rs 1.35 crore (up 41.5% YoY), savings rate: 22%.`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:1000,
+      system:`You are a personal finance advisor for a user in Pakistan. All figures are in Pakistani Rupees (PKR). Use Pakistani financial context (PSX, savings accounts, NSS, mutual funds, Roshan Digital Account, etc.) when relevant. Be concise (2-4 sentences), specific, and actionable. No markdown. ${context}`,
+      messages:[{role:'user',content:text}]
+    })});
+    const data=await resp.json();
+    typing.remove();
+    const reply=data.content?.map(c=>c.text||'').join('')||'Sorry, could not get a response.';
+    msgs.innerHTML+=`<div class="msg msg-ai">${reply}</div>`;
+  }catch(e){
+    typing.remove();
+    msgs.innerHTML+=`<div class="msg msg-ai">Connection issue — please try again.</div>`;
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function quickAsk(q){document.getElementById('ai-input').value=q;sendAI();}
+
+function initDashboardCharts(){
+  const isDark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const tc=isDark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)';
+  const gc=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  new Chart(document.getElementById('spendChart'),{
+    type:'bar',
+    data:{labels:Array.from({length:17},(_,i)=>i+1),datasets:[{label:'Spend (Rs)',data:Array.from({length:17},()=>Math.round(pkr(50+Math.random()*200))),backgroundColor:'#1D9E75',borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:9},grid:{display:false}},y:{ticks:{color:tc,font:{size:10},callback:v=>'Rs '+Math.round(v/1000)+'k'},grid:{color:gc}}}}
+  });
+  new Chart(document.getElementById('catChart'),{
+    type:'doughnut',
+    data:{labels:['Housing','Food & dining','Transport','Entertainment','Health','Other'],datasets:[{data:[35,28,12,10,8,7],backgroundColor:['#185FA5','#1D9E75','#BA7517','#533B89','#A32D2D','#888780'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}
+  });
+}
+
+renderTxList();renderBudgetSummary();renderAlerts();
+setTimeout(initDashboardCharts,100);
+</script>
