@@ -1,0 +1,406 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px}
+.app{border:0.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface-2)}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border)}
+.logo{font-size:15px;font-weight:500;color:var(--text-primary);display:flex;align-items:center;gap:7px}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;background:#EEEDFE;color:#3C3489;border:0.5px solid #AFA9EC;margin-left:auto}
+.api-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#FAEEDA;border-bottom:0.5px solid #EF9F27}
+.api-bar label{font-size:12px;color:#633806;white-space:nowrap;font-weight:500}
+.api-bar input{flex:1;padding:5px 9px;border-radius:var(--radius);border:0.5px solid #EF9F27;font-size:12px;background:#fff;color:#2C2C2A;font-family:monospace}
+.api-status{font-size:11px;white-space:nowrap;padding:3px 8px;border-radius:20px;font-weight:500}
+.api-status.ok{background:#EAF3DE;color:#27500A}
+.api-status.no{background:#FCEBEB;color:#791F1F}
+.tabs{display:flex;border-bottom:0.5px solid var(--border);background:var(--surface-1)}
+.tab{padding:10px 16px;font-size:13px;cursor:pointer;color:var(--text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:5px;transition:color .15s}
+.tab.on{color:#185FA5;border-bottom-color:#185FA5;font-weight:500}
+.tab:hover:not(.on){color:var(--text-primary)}
+.pane{display:none;padding:14px}
+.pane.on{display:block}
+select,input[type=text],input[type=date],input[type=number],textarea{padding:7px 10px;border-radius:var(--radius);border:0.5px solid var(--border-strong);font-size:13px;background:var(--surface-2);color:var(--text-primary);font-family:var(--font-sans);width:100%}
+textarea{resize:vertical;min-height:68px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);font-size:13px;cursor:pointer;background:var(--surface-1);color:var(--text-primary);font-family:var(--font-sans);transition:all .15s}
+.btn:hover{background:var(--surface-0)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-blue{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-blue:hover{background:#0C447C}
+.btn-purple{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.btn-purple:hover{background:#CECBF6}
+.btn-sm{padding:4px 8px;font-size:12px}
+.btn-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.metric{background:var(--surface-1);border-radius:var(--radius);padding:10px;text-align:center}
+.mn{font-size:22px;font-weight:500}
+.ml{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.srow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.srow:last-child{border-bottom:none}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.ag{display:flex;gap:3px}
+.ab{width:27px;height:27px;border-radius:var(--radius);border:0.5px solid var(--border);cursor:pointer;font-size:11px;font-weight:500;background:var(--surface-1);color:var(--text-secondary);transition:all .15s;font-family:var(--font-sans)}
+.ab.P{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
+.ab.A{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
+.ab.L{background:#FAEEDA;border-color:#854F0B;color:#633806}
+.bp{background:#EAF3DE;color:#27500A;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:500}
+.ba{background:#FCEBEB;color:#791F1F;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:500}
+.bl{background:#FAEEDA;color:#633806;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:500}
+.lcard{border:0.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:var(--surface-2)}
+.stag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.tM{background:#E6F1FB;color:#0C447C}.tS{background:#EAF3DE;color:#27500A}.tE{background:#FAEEDA;color:#633806}.tH{background:#FCEBEB;color:#791F1F}.tP{background:#EEEDFE;color:#3C3489}
+.ai-box{background:#EEEDFE;border:0.5px solid #AFA9EC;border-radius:var(--radius);padding:11px 13px;margin-top:10px}
+.ai-box-title{font-size:12px;font-weight:500;color:#3C3489;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.ai-body{font-size:13px;color:var(--text-primary);line-height:1.6;white-space:pre-wrap}
+.typing::after{content:'▋';animation:bl .8s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+.pbar{height:5px;border-radius:3px;background:var(--surface-1);overflow:hidden;margin-top:3px}
+.pfill{height:100%;border-radius:3px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border-strong);background:var(--surface-1);color:var(--text-secondary);margin-right:4px;margin-bottom:4px;transition:all .15s}
+.pill.on{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.fl{font-size:12px;color:var(--text-secondary);margin-bottom:4px;display:block}
+.fg{margin-bottom:10px}
+.row2{display:flex;gap:10px}.row2 .fg{flex:1}
+.modal-bg{background:rgba(0,0,0,.4);min-height:480px;display:none;align-items:flex-start;justify-content:center;padding-top:16px}
+.modal-bg.on{display:flex}
+.modal{background:var(--surface-2);border-radius:12px;border:0.5px solid var(--border);padding:18px;width:490px;max-width:97%}
+.modal h3{font-size:15px;font-weight:500;margin-bottom:14px;color:var(--text-primary)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)}
+.toast{position:fixed;bottom:16px;right:16px;background:var(--surface-2);border:0.5px solid var(--border-strong);border-radius:var(--radius);padding:9px 14px;font-size:13px;z-index:999;display:none;align-items:center;gap:7px}
+.toast.on{display:flex}
+.err-box{background:#FCEBEB;border:0.5px solid #F09595;border-radius:var(--radius);padding:10px 13px;margin-top:8px;font-size:13px;color:#791F1F}
+.bubble{display:inline-block;max-width:88%;padding:8px 12px;font-size:13px;line-height:1.5;border-radius:12px;border:0.5px solid var(--border)}
+.bu{background:#E6F1FB;border-color:#85B7EB;color:var(--text-primary);border-radius:12px 12px 2px 12px}
+.ba2{background:var(--surface-1);color:var(--text-primary);border-radius:12px 12px 12px 2px}
+</style>
+
+<h2 class="sr-only">ClassRoom AI — teacher app with Anthropic API key input</h2>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo"><i class="ti ti-school" aria-hidden="true" style="font-size:18px;color:#185FA5"></i> ClassRoom AI</div>
+    <span class="ai-badge"><i class="ti ti-sparkles" aria-hidden="true" style="font-size:12px"></i> Claude powered</span>
+  </div>
+
+  <div class="api-bar">
+    <label for="apikey"><i class="ti ti-key" aria-hidden="true"></i> Anthropic API Key:</label>
+    <input type="password" id="apikey" placeholder="sk-ant-api03-..." oninput="checkKey()">
+    <span class="api-status no" id="api-status">Not set</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="sw('att',this)"><i class="ti ti-clipboard-list" aria-hidden="true"></i> Attendance</div>
+    <div class="tab" onclick="sw('les',this)"><i class="ti ti-book" aria-hidden="true"></i> Lessons</div>
+    <div class="tab" onclick="sw('rep',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i> Reports</div>
+    <div class="tab" onclick="sw('ai',this)"><i class="ti ti-sparkles" aria-hidden="true"></i> AI Assistant</div>
+  </div>
+
+  <div id="p-att" class="pane on">
+    <div class="btn-row">
+      <select id="ac" onchange="rs()" style="width:auto"><option>Grade 6A</option><option>Grade 6B</option><option>Grade 7A</option></select>
+      <input type="date" id="ad" style="width:auto">
+      <button class="btn btn-blue" onclick="saveAtt()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save</button>
+      <button class="btn btn-purple" onclick="aiAtt()"><i class="ti ti-sparkles" aria-hidden="true"></i> AI insight</button>
+    </div>
+    <div class="card">
+      <div class="g3" id="att-sum"></div>
+      <div id="slist"></div>
+      <div style="display:flex;gap:14px;margin-top:8px">
+        <span style="font-size:12px;color:var(--text-secondary)"><span style="display:inline-block;width:9px;height:9px;background:#3B6D11;border-radius:2px;margin-right:3px"></span>P Present</span>
+        <span style="font-size:12px;color:var(--text-secondary)"><span style="display:inline-block;width:9px;height:9px;background:#A32D2D;border-radius:2px;margin-right:3px"></span>A Absent</span>
+        <span style="font-size:12px;color:var(--text-secondary)"><span style="display:inline-block;width:9px;height:9px;background:#854F0B;border-radius:2px;margin-right:3px"></span>L Late</span>
+      </div>
+    </div>
+    <div id="ai-att-out"></div>
+  </div>
+
+  <div id="p-les" class="pane">
+    <div class="btn-row">
+      <div style="flex:1"></div>
+      <button class="btn btn-purple" onclick="openAIGen()"><i class="ti ti-sparkles" aria-hidden="true"></i> Generate with AI</button>
+      <button class="btn btn-blue" onclick="openLM(-1)"><i class="ti ti-plus" aria-hidden="true"></i> New plan</button>
+    </div>
+    <div style="margin-bottom:10px" id="sf"></div>
+    <div id="llist"></div>
+  </div>
+
+  <div id="p-rep" class="pane">
+    <div class="btn-row">
+      <select id="rc" onchange="rRep()" style="width:auto"><option>Grade 6A</option><option>Grade 6B</option><option>Grade 7A</option></select>
+      <div style="flex:1"></div>
+      <button class="btn btn-purple" onclick="aiRep()"><i class="ti ti-sparkles" aria-hidden="true"></i> AI summary</button>
+    </div>
+    <div class="g3" id="rep-m"></div>
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Student rates</div><div id="rep-s"></div></div>
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Recent history</div><div id="rep-h"></div></div>
+    <div id="ai-rep-out"></div>
+  </div>
+
+  <div id="p-ai" class="pane">
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">Ask anything about your class, students, or teaching ideas.</div>
+    <div class="card" id="chat-hist" style="min-height:160px">
+      <div style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:13px">
+        <i class="ti ti-sparkles" aria-hidden="true" style="font-size:24px;display:block;margin-bottom:6px;opacity:.35"></i>
+        Your AI teaching assistant is ready
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:flex-start">
+      <div style="flex:1">
+        <textarea id="ci" placeholder="e.g. Which students need extra attention?" style="min-height:50px;resize:none;margin-bottom:6px"></textarea>
+        <div>
+          <button class="btn btn-sm" onclick="sp('Identify at-risk students based on attendance data')">At-risk students ↗</button>
+          <button class="btn btn-sm" onclick="sp('Suggest a warm-up activity for a Math lesson')">Lesson warm-up ↗</button>
+          <button class="btn btn-sm" onclick="sp('Write a parent letter about low attendance')">Parent letter ↗</button>
+        </div>
+      </div>
+      <button class="btn btn-blue" id="send-btn" onclick="sendChat()"><i class="ti ti-send" aria-hidden="true"></i> Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="lm">
+  <div class="modal">
+    <h3 id="lm-h">New lesson plan</h3>
+    <div class="row2">
+      <div class="fg"><label class="fl">Subject</label><select id="ls"><option>Math</option><option>Science</option><option>English</option><option>History</option><option>PE</option></select></div>
+      <div class="fg"><label class="fl">Class</label><select id="lc"><option>Grade 6A</option><option>Grade 6B</option><option>Grade 7A</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Title</label><input type="text" id="lt" placeholder="e.g. Intro to Fractions"></div>
+    <div class="row2">
+      <div class="fg"><label class="fl">Date</label><input type="date" id="ld"></div>
+      <div class="fg"><label class="fl">Duration (min)</label><input type="number" id="ldur" value="45"></div>
+    </div>
+    <div class="fg"><label class="fl">Objectives (one per line)</label><textarea id="lo" placeholder="Students will understand..."></textarea></div>
+    <div class="fg"><label class="fl">Resources</label><input type="text" id="lr" placeholder="Textbook, worksheets..."></div>
+    <div class="fg"><label class="fl">Notes / homework</label><textarea id="ln" style="min-height:48px" placeholder="Optional..."></textarea></div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeLM()">Cancel</button>
+      <button class="btn btn-blue" onclick="saveLes()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="aim">
+  <div class="modal">
+    <h3>Generate lesson with AI</h3>
+    <div class="row2">
+      <div class="fg"><label class="fl">Subject</label><select id="ais"><option>Math</option><option>Science</option><option>English</option><option>History</option><option>PE</option></select></div>
+      <div class="fg"><label class="fl">Class</label><select id="aic"><option>Grade 6A</option><option>Grade 6B</option><option>Grade 7A</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Topic / description</label><textarea id="ait" placeholder="e.g. Photosynthesis, 45 min, include a group experiment"></textarea></div>
+    <div id="ai-gen-out"></div>
+    <div class="mfoot">
+      <button class="btn" onclick="closeAIGen()">Cancel</button>
+      <button class="btn btn-purple" id="gen-btn" onclick="genLesson()"><i class="ti ti-sparkles" aria-hidden="true"></i> Generate</button>
+      <button class="btn btn-blue" id="use-btn" style="display:none" onclick="useGen()"><i class="ti ti-plus" aria-hidden="true"></i> Use this plan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check" aria-hidden="true" style="color:#3B6D11"></i><span id="tmsg"></span></div>
+
+<script>
+const AVS=[['#E6F1FB','#185FA5'],['#EAF3DE','#3B6D11'],['#EEEDFE','#534AB7'],['#FAEEDA','#854F0B'],['#FAECE7','#712B13'],['#E1F5EE','#085041']];
+const av=i=>{const[b,c]=AVS[i%AVS.length];return`background:${b};color:${c}`};
+const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const td=()=>new Date().toISOString().split('T')[0];
+document.getElementById('ad').value=td();
+document.getElementById('ld').value=td();
+
+const STU={'Grade 6A':['Amina Khan','Bilal Hassan','Sara Ahmed','Omar Malik','Fatima Raza','Zaid Hussain','Hina Siddiqui','Rayyan Ali'],'Grade 6B':['Tariq Mehmood','Nadia Iqbal','Faisal Shah','Saba Qureshi','Hamza Baig','Mariam Zahid'],'Grade 7A':['Uzair Ahmed','Layla Anwar','Jawad Karimi','Rania Saleem','Imran Chaudhry','Zara Tahir','Kamran Butt']};
+
+let ATT={},LES=[],editI=-1,genL=null,chatH=[];
+
+function getKey(){
+  const k=document.getElementById('apikey').value.trim();
+  return k;
+}
+
+function checkKey(){
+  const k=getKey();
+  const el=document.getElementById('api-status');
+  if(k.startsWith('sk-ant-')){el.textContent='Ready';el.className='api-status ok';}
+  else{el.textContent='Not set';el.className='api-status no';}
+}
+
+async function load(){
+  try{const r=await window.storage.get('crx_att');if(r)ATT=JSON.parse(r.value);}catch(e){}
+  try{const r=await window.storage.get('crx_les');if(r)LES=JSON.parse(r.value);}catch(e){}
+  if(!LES.length)LES=[
+    {s:'Math',c:'Grade 6A',t:'Introduction to Fractions',d:'2026-06-15',dur:45,obj:'Understand numerator and denominator\nCompare fractions with like denominators',res:'Textbook p.42, fraction strips',n:'Homework: Worksheet 3A'},
+    {s:'Science',c:'Grade 6A',t:'States of Matter',d:'2026-06-14',dur:50,obj:'Identify the three states of matter\nDescribe particle arrangement',res:'Lab equipment, ice, beaker',n:'Lab report due Friday'},
+    {s:'English',c:'Grade 7A',t:'Descriptive Writing',d:'2026-06-13',dur:45,obj:'Use sensory language\nStructure a paragraph',res:'Sample texts, journals',n:''}
+  ];
+  rs();rl();rRep();
+}
+
+async function persist(){
+  try{await window.storage.set('crx_att',JSON.stringify(ATT));}catch(e){}
+  try{await window.storage.set('crx_les',JSON.stringify(LES));}catch(e){}
+}
+
+const gc=()=>document.getElementById('ac').value;
+const gd=()=>document.getElementById('ad').value;
+const ak=(c,n,d)=>c+'|'+n+'|'+d;
+const gs=n=>ATT[ak(gc(),n,gd())]||'';
+
+function rs(){
+  const stds=STU[gc()]||[];
+  let p=0,a=0,l=0;
+  stds.forEach(n=>{const s=gs(n);if(s==='P')p++;else if(s==='A')a++;else if(s==='L')l++;});
+  document.getElementById('att-sum').innerHTML=`<div class="metric"><div class="mn" style="color:#3B6D11">${p}</div><div class="ml">Present</div></div><div class="metric"><div class="mn" style="color:#A32D2D">${a}</div><div class="ml">Absent</div></div><div class="metric"><div class="mn" style="color:#854F0B">${l}</div><div class="ml">Late</div></div>`;
+  document.getElementById('slist').innerHTML=stds.map((n,i)=>{const s=gs(n);return`<div class="srow"><div class="av" style="${av(i)}">${ini(n)}</div><span style="flex:1;font-size:13px">${n}</span><span style="font-size:11px;color:var(--text-secondary);margin-right:6px">${rate(n)}%</span><div class="ag"><button class="ab ${s==='P'?'P':''}" onclick="mk('${n}','P')">P</button><button class="ab ${s==='A'?'A':''}" onclick="mk('${n}','A')">A</button><button class="ab ${s==='L'?'L':''}" onclick="mk('${n}','L')">L</button></div></div>`;}).join('');
+}
+
+function mk(n,st){const k=ak(gc(),n,gd());ATT[k]=ATT[k]===st?'':st;rs();rRep();}
+async function saveAtt(){await persist();toast('Attendance saved');}
+
+function rate(n,c){
+  c=c||gc();
+  const ks=Object.keys(ATT).filter(k=>k.startsWith(c+'|'+n+'|'));
+  if(!ks.length)return 100;
+  return Math.round(ks.filter(k=>ATT[k]==='P'||ATT[k]==='L').length/ks.length*100);
+}
+
+function rRep(){
+  const c=document.getElementById('rc').value,stds=STU[c]||[];
+  let p=0,a=0,l=0;
+  stds.forEach(n=>{Object.keys(ATT).filter(k=>k.startsWith(c+'|'+n+'|')).forEach(k=>{if(ATT[k]==='P')p++;else if(ATT[k]==='A')a++;else if(ATT[k]==='L')l++;});});
+  const tot=p+a+l||1;
+  document.getElementById('rep-m').innerHTML=`<div class="metric"><div class="mn" style="color:#3B6D11">${Math.round(p/tot*100)}%</div><div class="ml">Avg present</div></div><div class="metric"><div class="mn" style="color:#A32D2D">${a}</div><div class="ml">Total absences</div></div><div class="metric"><div class="mn" style="color:#854F0B">${l}</div><div class="ml">Total lates</div></div>`;
+  document.getElementById('rep-s').innerHTML=stds.map((n,i)=>{const r=rate(n,c);const fc=r>=90?'#3B6D11':r>=75?'#854F0B':'#A32D2D';return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)"><div class="av" style="${av(i)};width:26px;height:26px;font-size:10px">${ini(n)}</div><span style="flex:1;font-size:13px">${n}</span><div style="width:80px"><div class="pbar"><div class="pfill" style="width:${r}%;background:${fc}"></div></div></div><span style="font-size:12px;font-weight:500;color:${fc};min-width:30px;text-align:right">${r}%</span></div>`;}).join('');
+  const hist=Object.entries(ATT).filter(([k])=>k.startsWith(c+'|')).sort((a,b)=>b[0]>a[0]?1:-1).slice(0,10);
+  document.getElementById('rep-h').innerHTML=hist.length?hist.map(([k,v])=>{const[,nm,dt]=k.split('|');return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px"><span style="color:var(--text-secondary);min-width:86px">${dt}</span><span style="flex:1">${nm}</span><span class="b${v.toLowerCase()}">${v==='P'?'Present':v==='A'?'Absent':'Late'}</span></div>`;}).join(''):'<div style="padding:14px;font-size:13px;color:var(--text-secondary);text-align:center">No records yet.</div>';
+}
+
+let activeS='All';
+function rl(){
+  const SUBS=['All','Math','Science','English','History','PE'];
+  document.getElementById('sf').innerHTML=SUBS.map(s=>`<span class="pill${s===activeS?' on':''}" onclick="setSub('${s}')">${s}</span>`).join('');
+  const fl=LES.filter(l=>activeS==='All'||l.s===activeS);
+  const TC={Math:'tM',Science:'tS',English:'tE',History:'tH',PE:'tP'};
+  document.getElementById('llist').innerHTML=fl.length?fl.map(l=>{const ri=LES.indexOf(l);const obs=l.obj?l.obj.split('\n').filter(Boolean):[];const rs2=l.res?l.res.split(',').map(r=>r.trim()).filter(Boolean):[];return`<div class="lcard"><div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><span class="stag ${TC[l.s]||'tM'}">${l.s}</span> <span style="font-size:11px;color:var(--text-secondary)">${l.c}</span><div style="font-size:14px;font-weight:500;margin:4px 0">${l.t}</div><div style="font-size:12px;color:var(--text-secondary)">${l.d} · ${l.dur} min</div></div><div style="display:flex;gap:4px"><button class="btn btn-sm" onclick="openLM(${ri})"><i class="ti ti-edit" aria-hidden="true"></i></button><button class="btn btn-sm" onclick="delL(${ri})" style="color:var(--text-secondary)"><i class="ti ti-trash" aria-hidden="true"></i></button></div></div>${obs.length?`<div style="margin-top:8px">${obs.map(o=>`<div style="font-size:12px;color:var(--text-secondary);display:flex;gap:5px;padding:2px 0"><span style="color:#3B6D11;flex-shrink:0">✓</span>${o}</div>`).join('')}</div>`:''}${rs2.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:3px">${rs2.map(r=>`<span style="padding:2px 6px;border-radius:var(--radius);border:0.5px solid var(--border);font-size:11px;color:var(--text-secondary);background:var(--surface-1)">${r}</span>`).join('')}</div>`:''}${l.n?`<div style="margin-top:7px;padding:6px 9px;background:var(--surface-1);border-radius:var(--radius);font-size:12px;color:var(--text-secondary)">${l.n}</div>`:''}</div>`;}).join(''):'<div style="text-align:center;padding:36px;color:var(--text-secondary);font-size:13px"><i class="ti ti-book" aria-hidden="true" style="display:block;font-size:24px;margin-bottom:6px;opacity:.35"></i>No lessons yet.</div>';
+}
+function setSub(s){activeS=s;rl();}
+
+function openLM(idx){
+  editI=idx;
+  document.getElementById('lm-h').textContent=idx>=0?'Edit lesson plan':'New lesson plan';
+  const d=idx>=0?LES[idx]:{s:'Math',c:'Grade 6A',t:'',d:td(),dur:45,obj:'',res:'',n:''};
+  document.getElementById('ls').value=d.s;document.getElementById('lc').value=d.c;document.getElementById('lt').value=d.t;document.getElementById('ld').value=d.d;document.getElementById('ldur').value=d.dur;document.getElementById('lo').value=d.obj||'';document.getElementById('lr').value=d.res||'';document.getElementById('ln').value=d.n||'';
+  document.getElementById('lm').classList.add('on');
+}
+function closeLM(){document.getElementById('lm').classList.remove('on');}
+async function saveLes(){
+  const p={s:document.getElementById('ls').value,c:document.getElementById('lc').value,t:document.getElementById('lt').value,d:document.getElementById('ld').value,dur:parseInt(document.getElementById('ldur').value)||45,obj:document.getElementById('lo').value,res:document.getElementById('lr').value,n:document.getElementById('ln').value};
+  if(!p.t){alert('Enter a lesson title.');return;}
+  if(editI>=0)LES[editI]=p;else LES.unshift(p);
+  await persist();closeLM();rl();toast(editI>=0?'Lesson updated':'Lesson saved');
+}
+async function delL(i){if(!confirm('Delete this lesson?'))return;LES.splice(i,1);await persist();rl();toast('Lesson deleted');}
+
+function openAIGen(){document.getElementById('ai-gen-out').innerHTML='';document.getElementById('use-btn').style.display='none';document.getElementById('gen-btn').style.display='';genL=null;document.getElementById('aim').classList.add('on');}
+function closeAIGen(){document.getElementById('aim').classList.remove('on');}
+
+async function callClaude(messages,system,maxTok=600){
+  const key=getKey();
+  if(!key.startsWith('sk-ant-')){throw new Error('API key missing — enter your Anthropic API key in the field at the top.');}
+  const body={model:'claude-sonnet-4-6',max_tokens:maxTok,messages};
+  if(system)body.system=system;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'API error '+res.status);}
+  const data=await res.json();
+  return data.content.map(c=>c.text||'').join('');
+}
+
+async function genLesson(){
+  const topic=document.getElementById('ait').value.trim();
+  if(!topic){alert('Enter a topic.');return;}
+  const subj=document.getElementById('ais').value,cls=document.getElementById('aic').value;
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader" aria-hidden="true"></i> Generating...';
+  const out=document.getElementById('ai-gen-out');
+  out.innerHTML='<div class="ai-box"><div class="ai-box-title"><i class="ti ti-sparkles" aria-hidden="true"></i> Creating your lesson plan...</div><div class="ai-body typing">Working on it</div></div>';
+  try{
+    const text=await callClaude([{role:'user',content:`Create a lesson plan. Subject: ${subj}. Class: ${cls}. Topic: ${topic}.\n\nReturn ONLY valid JSON, no markdown:\n{"title":"string","duration":45,"objectives":["obj1","obj2","obj3"],"resources":["res1","res2"],"activities":"string","assessment":"string","homework":"string"}`}],null,900);
+    let plan;
+    try{plan=JSON.parse(text.replace(/```json|```/g,'').trim());}
+    catch(e){out.innerHTML=`<div class="err-box">Could not parse AI response. Try again.</div>`;btn.disabled=false;btn.innerHTML='<i class="ti ti-sparkles" aria-hidden="true"></i> Generate';return;}
+    genL={s:subj,c:cls,t:plan.title,d:td(),dur:plan.duration||45,obj:(plan.objectives||[]).join('\n'),res:(plan.resources||[]).join(', '),n:[plan.activities&&'Activities: '+plan.activities,plan.assessment&&'Assessment: '+plan.assessment,plan.homework&&'Homework: '+plan.homework].filter(Boolean).join('\n')};
+    out.innerHTML=`<div class="ai-box"><div class="ai-box-title"><i class="ti ti-sparkles" aria-hidden="true"></i> Plan generated</div><div class="ai-body"><strong>${plan.title}</strong> · ${plan.duration} min<br>${(plan.objectives||[]).map(o=>`✓ ${o}`).join('<br>')}${plan.activities?'<br><br>'+plan.activities:''}${plan.homework?'<br>Homework: '+plan.homework:''}</div></div>`;
+    document.getElementById('use-btn').style.display='';
+    btn.innerHTML='<i class="ti ti-refresh" aria-hidden="true"></i> Regenerate';
+  }catch(e){out.innerHTML=`<div class="err-box"><i class="ti ti-alert-circle" aria-hidden="true"></i> ${e.message}</div>`;btn.innerHTML='<i class="ti ti-sparkles" aria-hidden="true"></i> Generate';}
+  btn.disabled=false;
+}
+
+async function useGen(){if(!genL)return;LES.unshift(genL);await persist();closeAIGen();rl();toast('AI lesson plan saved');}
+
+async function aiAtt(){
+  const cls=gc(),dt=gd(),stds=STU[cls]||[];
+  const summary=stds.map(n=>`${n}: ${gs(n)||'not marked'}`).join(', ');
+  const rates=stds.map(n=>`${n}: ${rate(n)}%`).join(', ');
+  const out=document.getElementById('ai-att-out');
+  out.innerHTML='<div class="ai-box"><div class="ai-box-title"><i class="ti ti-sparkles" aria-hidden="true"></i> Analyzing attendance...</div><div class="ai-body typing" id="aao">Thinking</div></div>';
+  try{
+    const text=await callClaude([{role:'user',content:`Analyze attendance for ${cls} on ${dt}. Today: ${summary}. Overall rates: ${rates}. Give 2-3 concise actionable insights in 3-4 sentences.`}],null,400);
+    document.getElementById('aao').className='ai-body';document.getElementById('aao').textContent=text;
+  }catch(e){out.innerHTML=`<div class="err-box"><i class="ti ti-alert-circle" aria-hidden="true"></i> ${e.message}</div>`;}
+}
+
+async function aiRep(){
+  const cls=document.getElementById('rc').value,stds=STU[cls]||[];
+  const rates=stds.map(n=>`${n}: ${rate(n,cls)}%`).join(', ');
+  let p=0,a=0,l=0;
+  stds.forEach(n=>{Object.keys(ATT).filter(k=>k.startsWith(cls+'|'+n+'|')).forEach(k=>{if(ATT[k]==='P')p++;else if(ATT[k]==='A')a++;else if(ATT[k]==='L')l++;});});
+  const out=document.getElementById('ai-rep-out');
+  out.innerHTML='<div class="ai-box" style="margin-top:8px"><div class="ai-box-title"><i class="ti ti-sparkles" aria-hidden="true"></i> Generating report...</div><div class="ai-body typing" id="aro">Working</div></div>';
+  try{
+    const text=await callClaude([{role:'user',content:`Write a professional 3-4 sentence attendance report for ${cls}. Data: ${rates}. Totals: ${p} present, ${a} absent, ${l} late. Include trend and one recommendation.`}],null,400);
+    document.getElementById('aro').className='ai-body';document.getElementById('aro').textContent=text;
+  }catch(e){out.innerHTML=`<div class="err-box" style="margin-top:8px"><i class="ti ti-alert-circle" aria-hidden="true"></i> ${e.message}</div>`;}
+}
+
+async function sendChat(){
+  const inp=document.getElementById('ci'),msg=inp.value.trim();if(!msg)return;
+  chatH.push({role:'user',content:msg});inp.value='';
+  const btn=document.getElementById('send-btn');btn.disabled=true;
+  renderChat(true);
+  const cls=gc(),stds=STU[cls]||[];
+  const ctx=`You are a helpful AI assistant for a teacher managing ${cls} with students: ${stds.join(', ')}. Attendance rates: ${stds.map(n=>n+': '+rate(n)+'%').join(', ')}. Be concise and practical.`;
+  try{
+    const text=await callClaude(chatH,ctx,600);
+    chatH.push({role:'assistant',content:text});
+  }catch(e){chatH.push({role:'assistant',content:'Error: '+e.message});}
+  btn.disabled=false;renderChat(false);
+}
+
+function renderChat(loading){
+  const el=document.getElementById('chat-hist');
+  el.innerHTML=chatH.map(m=>`<div style="margin-bottom:8px;${m.role==='user'?'text-align:right':''}"><div class="bubble ${m.role==='user'?'bu':'ba2'}">${m.content}</div></div>`).join('');
+  if(loading)el.innerHTML+='<div><div class="bubble ba2 typing">Thinking</div></div>';
+  el.scrollTop=el.scrollHeight;
+}
+
+function sp(p){document.getElementById('ci').value=p;}
+
+function sw(id,el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');el.classList.add('on');
+  if(id==='rep')rRep();
+}
+
+let tt;
+function toast(m){const t=document.getElementById('toast');document.getElementById('tmsg').textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2400);}
+
+load();
+</script>
